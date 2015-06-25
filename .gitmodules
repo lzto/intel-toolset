@@ -1,0 +1,6 @@
+[submodule "tsx-tools"]
+	path = tsx-tools
+	url = https://github.com/andikleen/tsx-tools.git
+[submodule "intel-pcm"]
+	path = intel-pcm
+	url = https://github.com/erikarn/intel-pcm.git
