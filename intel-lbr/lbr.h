@@ -85,17 +85,24 @@
 
 #define MSR_DEV_FILE "/dev/cpu/%d/msr"
 
-typedef struct _lbr_stack
-{
-	unsigned long msr_lastbranch_from_ip[16];
-	unsigned long msr_lastbranch_to_ip[16];
-} lbr_stack;
-
 /*
  * support up to N CPUS
  */
 
 #define MAX_CPU 16
+
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
+typedef struct _lbr_stack
+{
+	unsigned long msr_lastbranch_from_ip[16];
+	unsigned long msr_lastbranch_to_ip[16];
+} lbr_stack;
 
 extern int msrfd[];
 
@@ -117,5 +124,10 @@ void cleanup_lbr(int cpuid);
  */
 
 inline void dump_lbr(int cpuid, lbr_stack* lbrstack);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif//_LBR_H_
