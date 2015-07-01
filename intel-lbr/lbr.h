@@ -24,6 +24,8 @@
 
 #define MSR_LASTBRANCH_TOS (0x1C9)
 
+#define MSR_LASTBRANCH_TOS_MASK (0x0F)
+
 #define IA32_DEBUGCTL (0x1D9)
 
 #define MSR_LASTBRANCH_0_FROM_IP (0x680)
@@ -85,6 +87,12 @@
 #define MSR_LBR_TSX_ABORT_MASK (0x2000000000000000)
 #define MSR_LBR_IN_TSX_MASK (0x4000000000000000)
 #define MSR_LBR_MISPRED_MASK (0x8000000000000000)
+
+/*
+ * for Haswell, there are 16 pairs of LBR Message
+ */
+
+#define LBR_STACK_SIZE (16)
 
 /*
  * MSR should be accessed from ring0

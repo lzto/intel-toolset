@@ -62,7 +62,7 @@ int start_lbr(int cpuid)
 	msr_lbr_select |= MSR_LBR_SELECT_NEAR_RET_MASK;
 	msr_lbr_select |= MSR_LBR_SELECT_NEAR_IND_JMP_MASK;
 	msr_lbr_select |= MSR_LBR_SELECT_NEAR_REL_JMP_MASK;
-	msr_lbr_select &= ~MSR_LBR_SELECT_FAR_BRANCH_MASK;
+	msr_lbr_select |= MSR_LBR_SELECT_FAR_BRANCH_MASK;
 	pwrite(msr_fd,&msr_lbr_select,sizeof(unsigned long),MSR_LBR_SELECT);
 
 	//close(msr_fd);
@@ -85,8 +85,8 @@ void cleanup_lbr(int cpuid)
  */
 
 #define read_lbr_stack_pair(X) \
-	rsum+= pread(msr_fd,&lbrstack->msr_lastbranch_from_ip[X],sizeof(unsigned long),MSR_LASTBRANCH_##X##_FROM_IP); \
-	rsum+= pread(msr_fd,&lbrstack->msr_lastbranch_to_ip[X],sizeof(unsigned long),MSR_LASTBRANCH_##X##_TO_IP);
+	rsum+= pread(msr_fd,&lbrstack->msr_lastbranch_from_ip[(-tos+X+LBR_STACK_SIZE)%LBR_STACK_SIZE],sizeof(unsigned long),MSR_LASTBRANCH_##X##_FROM_IP); \
+	rsum+= pread(msr_fd,&lbrstack->msr_lastbranch_to_ip[(-tos+X+LBR_STACK_SIZE)%LBR_STACK_SIZE],sizeof(unsigned long),MSR_LASTBRANCH_##X##_TO_IP);
 
 
 inline void dump_lbr(int cpuid, lbr_stack* lbrstack)
@@ -98,8 +98,16 @@ inline void dump_lbr(int cpuid, lbr_stack* lbrstack)
 	 * MSR_LASTBRANCH_x_TO_TP
 	 * Reference: 17.6.1
 	 */
+
 	int msr_fd = msrfd[cpuid];
 	int rsum=0;
+
+	/*
+	 * read Top of Stack Register(TOS)
+	 */
+	unsigned long _tos;
+	pread(msr_fd,&_tos,sizeof(unsigned long),MSR_LASTBRANCH_TOS);
+	int tos = _tos & MSR_LASTBRANCH_TOS_MASK;
 
 	read_lbr_stack_pair(0);
 	read_lbr_stack_pair(1);
