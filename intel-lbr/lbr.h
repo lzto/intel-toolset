@@ -8,8 +8,10 @@
 #ifndef _LBR_H_
 #define _LBR_H_
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
-
+#endif
+ 
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
