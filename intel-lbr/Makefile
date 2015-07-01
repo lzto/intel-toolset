@@ -7,4 +7,4 @@ liblbr.a: lbr.o
 lbr.o:
 	$(CC) $(CFLAGS) -I./ lbr.c -c
 clean:
-	rm lbr.o liblbr.a
+	rm -f lbr.o liblbr.a

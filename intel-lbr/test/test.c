@@ -40,6 +40,7 @@ void func7()
 	 */
 	lbr_stack lbrstack;
 	dump_lbr(0,&lbrstack);
+	inteprete_lbr_info(&lbrstack);
 }
 
 void func6()

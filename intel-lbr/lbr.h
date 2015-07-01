@@ -77,6 +77,14 @@
 #define MSR_LBR_SELECT_FAR_BRANCH_MASK (1<<8)
 
 
+/*
+ * Refer 17.8.1 LBR Stack Enhancement
+ */
+#define MSR_LBR_DATA_MASK (0x0000FFFFFFFFFFFF)
+#define MSR_LBR_SIGN_EXT_MASK (0x1FFF000000000000)
+#define MSR_LBR_TSX_ABORT_MASK (0x2000000000000000)
+#define MSR_LBR_IN_TSX_MASK (0x4000000000000000)
+#define MSR_LBR_MISPRED_MASK (0x8000000000000000)
 
 /*
  * MSR should be accessed from ring0
@@ -110,10 +118,21 @@ extern int msrfd[];
  * start LBR facility for cpuid
  */
 int start_lbr(int cpuid);
+
 /*
  * stop LBR facility for cpuid
+ * inline? stop_lbr to minimize impact of unrelated branch
  */
-void stop_lbr(int cpuid);
+ #define stop_lbr(cpuid) \
+ { \
+ 	int msr_fd = msrfd[cpuid]; \
+	unsigned long ia32_debugctl; \
+	pread(msr_fd,&ia32_debugctl,sizeof(unsigned long),IA32_DEBUGCTL); \
+	ia32_debugctl &= ~IA32_DEBUGCTL_LBR_MASK; \
+	ia32_debugctl &= ~IA32_DEBUGCTL_FRZ_LBRS_ON_PMI_MASK; \
+	pwrite(msr_fd,&ia32_debugctl,sizeof(unsigned long),IA32_DEBUGCTL); \
+}
+
 /*
  * clean LBR facility for cpuid
  */
@@ -124,6 +143,18 @@ void cleanup_lbr(int cpuid);
  */
 
 inline void dump_lbr(int cpuid, lbr_stack* lbrstack);
+
+/*
+ * Print LBR info
+ */
+
+void print_lbr(lbr_stack* lbrstack);
+
+/*
+ * inteprete LBR info
+ */
+void inteprete_lbr_info(lbr_stack* lbrstack);
+
 
 #ifdef __cplusplus
 }

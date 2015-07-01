@@ -56,12 +56,12 @@ int start_lbr(int cpuid)
 	pread(msr_fd,&msr_lbr_select,sizeof(unsigned long),MSR_LBR_SELECT);
 	msr_lbr_select |= MSR_LBR_SELECT_CPL_EQ_0_MASK;
 	msr_lbr_select &= ~MSR_LBR_SELECT_CPL_NEQ_0_MASK;
-	msr_lbr_select &= ~MSR_LBR_SELECT_JCC_MASK;
+	msr_lbr_select |= MSR_LBR_SELECT_JCC_MASK;
 	msr_lbr_select &= ~MSR_LBR_SELECT_NEAR_REL_CALL_MASK;
 	msr_lbr_select &= ~MSR_LBR_SELECT_NEAR_IND_CALL_MASK;
-	msr_lbr_select &= ~MSR_LBR_SELECT_NEAR_RET_MASK;
-	msr_lbr_select &= ~MSR_LBR_SELECT_NEAR_IND_JMP_MASK;
-	msr_lbr_select &= ~MSR_LBR_SELECT_NEAR_REL_JMP_MASK;
+	msr_lbr_select |= MSR_LBR_SELECT_NEAR_RET_MASK;
+	msr_lbr_select |= MSR_LBR_SELECT_NEAR_IND_JMP_MASK;
+	msr_lbr_select |= MSR_LBR_SELECT_NEAR_REL_JMP_MASK;
 	msr_lbr_select &= ~MSR_LBR_SELECT_FAR_BRANCH_MASK;
 	pwrite(msr_fd,&msr_lbr_select,sizeof(unsigned long),MSR_LBR_SELECT);
 
@@ -69,20 +69,6 @@ int start_lbr(int cpuid)
 	return 0;
 }
 
-
-/*
- * inline stop_lbr to minimize impact of unrelated branch
- */
-
-inline void stop_lbr(int cpuid)
-{
-	int msr_fd = msrfd[cpuid];
-	unsigned long ia32_debugctl;
-	pread(msr_fd,&ia32_debugctl,sizeof(unsigned long),IA32_DEBUGCTL);
-	ia32_debugctl &= ~IA32_DEBUGCTL_LBR_MASK;
-	ia32_debugctl &= ~IA32_DEBUGCTL_FRZ_LBRS_ON_PMI_MASK;
-	pwrite(msr_fd,&ia32_debugctl,sizeof(unsigned long),IA32_DEBUGCTL);
-}
 
 /*
  * clean up
@@ -131,9 +117,17 @@ inline void dump_lbr(int cpuid, lbr_stack* lbrstack)
 	read_lbr_stack_pair(13);
 	read_lbr_stack_pair(14);
 	read_lbr_stack_pair(15);
+}
 
+/*
+ * print lbr
+ */
+
+void print_lbr(lbr_stack* lbrstack)
+{
 	int i=0;
-	printf("-----LBR(%d Bytes)----\n",rsum);
+	//printf("-----LBR(%d Bytes)----\n",rsum);
+	printf("-----LBR----\n");
 	for(i=0;i<16;i++)
 	{
 		printf("%p->%p\n",
@@ -143,3 +137,34 @@ inline void dump_lbr(int cpuid, lbr_stack* lbrstack)
 	printf("-------------\n");
 }
 
+/*
+ * reference 17.8.1 LBR Stack Enhancement
+ */
+void inteprete_lbr_info(lbr_stack* lbrstack)
+{
+	int i;
+	for(i=0;i<16;i++)
+	{
+		printf("%p->%p\n",
+			(void*)((lbrstack->msr_lastbranch_from_ip[i])&MSR_LBR_DATA_MASK),
+			(void*)lbrstack->msr_lastbranch_to_ip[i]);
+		int q=0;
+		if(lbrstack->msr_lastbranch_from_ip[i]&MSR_LBR_MISPRED_MASK)
+		{
+			q=1;
+			printf("MISPRED,");
+		}
+		if(lbrstack->msr_lastbranch_from_ip[i]&MSR_LBR_IN_TSX_MASK)
+		{
+			q=1;
+			printf("IN_TSX,");
+		}
+		if(lbrstack->msr_lastbranch_from_ip[i]&MSR_LBR_IN_TSX_MASK)
+		{
+			q=1;
+			printf("ABRT,");
+		}
+		if(q!=0)
+			printf("\n");
+	}
+}
