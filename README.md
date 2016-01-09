@@ -3,4 +3,5 @@ Currently, it includes
   - intel-lbr, LBR Test
   - intel-pcm, Performance Counter Toolset
   - tsx-tool, Transaction Memory Wrapper Library
+  - pmu-tools, Intel PMU profiling tools
 
