@@ -4,3 +4,6 @@
 [submodule "intel-pcm"]
 	path = intel-pcm
 	url = https://github.com/erikarn/intel-pcm.git
+[submodule "pmu-tools"]
+	path = pmu-tools
+	url = https://github.com/andikleen/pmu-tools.git
