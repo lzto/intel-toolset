@@ -29,46 +29,72 @@ void set_cpu_affinity()
 }
 #endif
 
+unsigned long tscs[8];
+
+#define rdtsc(X) \
+	unsigned hi, lo; \
+	__asm__ __volatile__ ("rdtscp" : "=a"(lo), "=d"(hi));\
+	X = ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
+
 
 /*
  * test functions
  */
 void func7()
 {
+	rdtsc(tscs[7]);
 	/*
 	 * dump data from LBR
 	 */
 	lbr_stack lbrstack;
 	dump_lbr(0,&lbrstack);
 	inteprete_lbr_info(&lbrstack);
+	for (int i=0;i<8;i++)
+	{
+		printf("TSC[%d]=%ld\n",i,tscs[i]);
+	}
+    printf("-----------\n");
+    int j = 0;
+	for (int i=1;i<8;i++)
+	{
+        printf("=%ld\n",tscs[i] - tscs[j]);
+        j = i;
+	}
 }
 
 void func6()
 {
+	rdtsc(tscs[6]);
 	func7();
 }
 void func5()
 {
+	rdtsc(tscs[5]);
 	func6();
 }
 void func4()
 {
+	rdtsc(tscs[4]);
 	func5();
 }
 void func3()
 {
+	rdtsc(tscs[3]);
 	func4();
 }
 void func2()
 {
+	rdtsc(tscs[2]);
 	func3();
 }
 void func1()
 {
+	rdtsc(tscs[1]);
 	func2();
 }
 void func0()
 {
+	rdtsc(tscs[0]);
 	func1();
 }
 

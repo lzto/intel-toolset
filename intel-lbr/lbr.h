@@ -46,6 +46,22 @@
 #define MSR_LASTBRANCH_13_FROM_IP (0x68D)
 #define MSR_LASTBRANCH_14_FROM_IP (0x68E)
 #define MSR_LASTBRANCH_15_FROM_IP (0x68F)
+#define MSR_LASTBRANCH_16_FROM_IP (0x690)
+#define MSR_LASTBRANCH_17_FROM_IP (0x691)
+#define MSR_LASTBRANCH_18_FROM_IP (0x692)
+#define MSR_LASTBRANCH_19_FROM_IP (0x693)
+#define MSR_LASTBRANCH_20_FROM_IP (0x694)
+#define MSR_LASTBRANCH_21_FROM_IP (0x695)
+#define MSR_LASTBRANCH_22_FROM_IP (0x696)
+#define MSR_LASTBRANCH_23_FROM_IP (0x697)
+#define MSR_LASTBRANCH_24_FROM_IP (0x698)
+#define MSR_LASTBRANCH_25_FROM_IP (0x699)
+#define MSR_LASTBRANCH_26_FROM_IP (0x69A)
+#define MSR_LASTBRANCH_27_FROM_IP (0x69B)
+#define MSR_LASTBRANCH_28_FROM_IP (0x69C)
+#define MSR_LASTBRANCH_29_FROM_IP (0x69D)
+#define MSR_LASTBRANCH_30_FROM_IP (0x69E)
+#define MSR_LASTBRANCH_31_FROM_IP (0x69F)
 
 #define MSR_LASTBRANCH_0_TO_IP (0x6C0)
 #define MSR_LASTBRANCH_1_TO_IP (0x6C1)
@@ -63,6 +79,55 @@
 #define MSR_LASTBRANCH_13_TO_IP (0x6CD)
 #define MSR_LASTBRANCH_14_TO_IP (0x6CE)
 #define MSR_LASTBRANCH_15_TO_IP (0x6CF)
+#define MSR_LASTBRANCH_16_TO_IP (0x6D0)
+#define MSR_LASTBRANCH_17_TO_IP (0x6D1)
+#define MSR_LASTBRANCH_18_TO_IP (0x6D2)
+#define MSR_LASTBRANCH_19_TO_IP (0x6D3)
+#define MSR_LASTBRANCH_20_TO_IP (0x6D4)
+#define MSR_LASTBRANCH_21_TO_IP (0x6D5)
+#define MSR_LASTBRANCH_22_TO_IP (0x6D6)
+#define MSR_LASTBRANCH_23_TO_IP (0x6D7)
+#define MSR_LASTBRANCH_24_TO_IP (0x6D8)
+#define MSR_LASTBRANCH_25_TO_IP (0x6D9)
+#define MSR_LASTBRANCH_26_TO_IP (0x6DA)
+#define MSR_LASTBRANCH_27_TO_IP (0x6DB)
+#define MSR_LASTBRANCH_28_TO_IP (0x6DC)
+#define MSR_LASTBRANCH_29_TO_IP (0x6DD)
+#define MSR_LASTBRANCH_30_TO_IP (0x6DE)
+#define MSR_LASTBRANCH_31_TO_IP (0x6DF)
+
+#define MSR_LBR_INFO_0 (0xDC0)
+#define MSR_LBR_INFO_1 (0xDC1)
+#define MSR_LBR_INFO_2 (0xDC2)
+#define MSR_LBR_INFO_3 (0xDC3)
+#define MSR_LBR_INFO_4 (0xDC4)
+#define MSR_LBR_INFO_5 (0xDC5)
+#define MSR_LBR_INFO_6 (0xDC6)
+#define MSR_LBR_INFO_7 (0xDC7)
+#define MSR_LBR_INFO_8 (0xDC8)
+#define MSR_LBR_INFO_9 (0xDC9)
+#define MSR_LBR_INFO_10 (0xDCA)
+#define MSR_LBR_INFO_11 (0xDCB)
+#define MSR_LBR_INFO_12 (0xDCC)
+#define MSR_LBR_INFO_13 (0xDCD)
+#define MSR_LBR_INFO_14 (0xDCE)
+#define MSR_LBR_INFO_15 (0xDCF)
+#define MSR_LBR_INFO_16 (0xDD0)
+#define MSR_LBR_INFO_17 (0xDD1)
+#define MSR_LBR_INFO_18 (0xDD2)
+#define MSR_LBR_INFO_19 (0xDD3)
+#define MSR_LBR_INFO_20 (0xDD4)
+#define MSR_LBR_INFO_21 (0xDD5)
+#define MSR_LBR_INFO_22 (0xDD6)
+#define MSR_LBR_INFO_23 (0xDD7)
+#define MSR_LBR_INFO_24 (0xDD8)
+#define MSR_LBR_INFO_25 (0xDD9)
+#define MSR_LBR_INFO_26 (0xDDA)
+#define MSR_LBR_INFO_27 (0xDDB)
+#define MSR_LBR_INFO_28 (0xDDC)
+#define MSR_LBR_INFO_29 (0xDDD)
+#define MSR_LBR_INFO_30 (0xDDE)
+#define MSR_LBR_INFO_31 (0xDDF)
 
 /*
  * Refer 17.4.8.1 LBR Stack and Intel 64 Processors
@@ -84,6 +149,7 @@
 /*
  * Refer 17.8.1 LBR Stack Enhancement
  */
+#define MSR_LBR_CYCLE (0x000000000000FFFF)
 #define MSR_LBR_DATA_MASK (0x0000FFFFFFFFFFFF)
 #define MSR_LBR_SIGN_EXT_MASK (0x1FFF000000000000)
 #define MSR_LBR_TSX_ABORT_MASK (0x2000000000000000)
@@ -94,7 +160,7 @@
  * for Haswell, there are 16 pairs of LBR Message
  */
 
-#define LBR_STACK_SIZE (16)
+#define LBR_STACK_SIZE (32)
 
 /*
  * MSR should be accessed from ring0
@@ -118,8 +184,9 @@ extern "C"
 
 typedef struct _lbr_stack
 {
-	unsigned long msr_lastbranch_from_ip[16];
-	unsigned long msr_lastbranch_to_ip[16];
+	unsigned long msr_lastbranch_from_ip[32];
+	unsigned long msr_lastbranch_to_ip[32];
+    unsigned long msr_lbr_info[32];
 } lbr_stack;
 
 extern int msrfd[];
@@ -152,7 +219,7 @@ void cleanup_lbr(int cpuid);
  * dump LBR info
  */
 
-inline void dump_lbr(int cpuid, lbr_stack* lbrstack);
+void dump_lbr(int cpuid, lbr_stack* lbrstack);
 
 /*
  * Print LBR info

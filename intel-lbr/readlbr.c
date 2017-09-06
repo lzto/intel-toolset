@@ -211,11 +211,27 @@ inline void dump_lbr()
 	read_lbr_stack_pair(13);
 	read_lbr_stack_pair(14);
 	read_lbr_stack_pair(15);
+	read_lbr_stack_pair(16);
+	read_lbr_stack_pair(17);
+	read_lbr_stack_pair(18);
+	read_lbr_stack_pair(19);
+	read_lbr_stack_pair(20);
+	read_lbr_stack_pair(21);
+	read_lbr_stack_pair(22);
+	read_lbr_stack_pair(23);
+	read_lbr_stack_pair(24);
+	read_lbr_stack_pair(25);
+	read_lbr_stack_pair(26);
+	read_lbr_stack_pair(27);
+	read_lbr_stack_pair(28);
+	read_lbr_stack_pair(29);
+	read_lbr_stack_pair(30);
+	read_lbr_stack_pair(31);
 
 
 	int i=0;
 	printf("-----LBR(%d Bytes)----\n",rsum);
-	for(i=0;i<16;i++)
+	for(i=0;i<32;i++)
 	{
 		printf("%p->%p\n",
 			(void*)lbrstack.msr_lastbranch_from_ip[i],

@@ -86,10 +86,11 @@ void cleanup_lbr(int cpuid)
 
 #define read_lbr_stack_pair(X) \
 	rsum+= pread(msr_fd,&lbrstack->msr_lastbranch_from_ip[(-tos+X+LBR_STACK_SIZE)%LBR_STACK_SIZE],sizeof(unsigned long),MSR_LASTBRANCH_##X##_FROM_IP); \
-	rsum+= pread(msr_fd,&lbrstack->msr_lastbranch_to_ip[(-tos+X+LBR_STACK_SIZE)%LBR_STACK_SIZE],sizeof(unsigned long),MSR_LASTBRANCH_##X##_TO_IP);
+	rsum+= pread(msr_fd,&lbrstack->msr_lastbranch_to_ip[(-tos+X+LBR_STACK_SIZE)%LBR_STACK_SIZE],sizeof(unsigned long),MSR_LASTBRANCH_##X##_TO_IP);\
+	rsum+= pread(msr_fd,&lbrstack->msr_lbr_info[(-tos+X+LBR_STACK_SIZE)%LBR_STACK_SIZE],sizeof(unsigned long),MSR_LBR_INFO_##X);
 
 
-inline void dump_lbr(int cpuid, lbr_stack* lbrstack)
+void dump_lbr(int cpuid, lbr_stack* lbrstack)
 {
 	stop_lbr(cpuid);
 	/*
@@ -125,6 +126,22 @@ inline void dump_lbr(int cpuid, lbr_stack* lbrstack)
 	read_lbr_stack_pair(13);
 	read_lbr_stack_pair(14);
 	read_lbr_stack_pair(15);
+	read_lbr_stack_pair(16);
+	read_lbr_stack_pair(17);
+	read_lbr_stack_pair(18);
+	read_lbr_stack_pair(19);
+	read_lbr_stack_pair(20);
+	read_lbr_stack_pair(21);
+	read_lbr_stack_pair(22);
+	read_lbr_stack_pair(23);
+	read_lbr_stack_pair(24);
+	read_lbr_stack_pair(25);
+	read_lbr_stack_pair(26);
+	read_lbr_stack_pair(27);
+	read_lbr_stack_pair(28);
+	read_lbr_stack_pair(29);
+	read_lbr_stack_pair(30);
+	read_lbr_stack_pair(31);
 }
 
 /*
@@ -136,7 +153,7 @@ void print_lbr(lbr_stack* lbrstack)
 	int i=0;
 	//printf("-----LBR(%d Bytes)----\n",rsum);
 	printf("-----LBR----\n");
-	for(i=0;i<16;i++)
+	for(i=0;i<32;i++)
 	{
 		printf("%p->%p\n",
 			(void*)lbrstack->msr_lastbranch_from_ip[i],
@@ -151,28 +168,29 @@ void print_lbr(lbr_stack* lbrstack)
 void inteprete_lbr_info(lbr_stack* lbrstack)
 {
 	int i;
-	for(i=0;i<16;i++)
+	for(i=0;i<32;i++)
 	{
 		printf("%p->%p\n",
 			(void*)((lbrstack->msr_lastbranch_from_ip[i])&MSR_LBR_DATA_MASK),
 			(void*)lbrstack->msr_lastbranch_to_ip[i]);
 		int q=0;
-		if(lbrstack->msr_lastbranch_from_ip[i]&MSR_LBR_MISPRED_MASK)
+        printf("CYCLE(%d)",(int)(lbrstack->msr_lbr_info[i]&MSR_LBR_CYCLE));
+		if(lbrstack->msr_lbr_info[i]&MSR_LBR_MISPRED_MASK)
 		{
 			q=1;
 			printf("MISPRED,");
 		}
-		if(lbrstack->msr_lastbranch_from_ip[i]&MSR_LBR_IN_TSX_MASK)
+		if(lbrstack->msr_lbr_info[i]&MSR_LBR_IN_TSX_MASK)
 		{
 			q=1;
 			printf("IN_TSX,");
 		}
-		if(lbrstack->msr_lastbranch_from_ip[i]&MSR_LBR_IN_TSX_MASK)
+		if(lbrstack->msr_lbr_info[i]&MSR_LBR_IN_TSX_MASK)
 		{
 			q=1;
 			printf("ABRT,");
 		}
-		if(q!=0)
+		//if(q!=0)
 			printf("\n");
 	}
 }
